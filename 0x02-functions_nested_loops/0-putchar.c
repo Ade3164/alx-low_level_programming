@@ -1,23 +1,19 @@
 #include "main.h"
 /**
- * _putchar - writes the character c to stdout
- * @c: The character to print
- * main - Entry point
- * Return: On success 1.
- * On error, -1 is returned, and errno is set appropriately.
+ * main- Entry
+ *
+ * Return: 0
  */
+
 int main(void)
 {
-
-char ermias[] = "_putchar";
-int c;
-for (c = 0; c < 8; c++)
-
+char word[9] = "_putchar";
+int i = 0;
+while (i < 8)
 {
-_putchar(ermias[c]);
+_putchar(word[i]);
+i++;
 }
 _putchar('\n');
-
 return (0);
 }
-
