@@ -1,198 +1,246 @@
+
+
 #include <stdlib.h>
 #include "main.h"
 #include <stdio.h>
-/**
- * _prt - print string followed by newline
- * @s: string to print
- */
-void _prt(char *s)
-{
-	while (*s != '\0')
-		_putchar(*s++);
-	_putchar('\n');
-}
-/**
- * _realloc - Re-allocate memory for a larger or smaller size
- * @ptr: Pointer to the old memory block
- * @old_size: The old size of the memory block
- * @new_size: The new size of the memory block being created
- *
- * Return: Pointer to new memory
- */
-void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size)
-{
-	void *space;
-	char *spacecpy, *ptrcpy;
-	unsigned int i;
 
-	if (new_size == 0 && ptr != NULL)
-	{
-		free(ptr);
-		return (NULL);
-	}
-	if (new_size == old_size)
-		return (ptr);
-	/* regardless, we need to make new space of new_size */
-	space = malloc(new_size);
-	if (space == NULL)
-		return (NULL);
-	/* if ptr is null, return space without copying */
-	if (ptr == NULL)
-		return (space);
-	/* copy old contents into new space */
-	spacecpy = space;
-	ptrcpy = ptr;
-	for (i = 0; i < old_size && i < new_size; i++)
-		spacecpy[i] = ptrcpy[i];
-	free(ptr);
-	return (space);
-}
-/**
- * _calloc - Allocate memory and initalize space to zero
- * @nmemb: number of elements
- * @size: size of bytes
- *
- * Return: pointer to memory space, or NULL
- */
-void *_calloc(unsigned int nmemb, unsigned int size)
-{
-	void *space;
-	char *memset;
-	unsigned int i;
 
-	if (nmemb == 0 || size == 0)
-		return (NULL);
-	space = malloc(nmemb * size);
-	if (space == NULL)
-		return (NULL);
-
-	memset = space;
-	for (i = 0 ; i < nmemb * size; i++)
-	{
-		*(memset + i) = 0;
-	}
-
-	return (space);
-}
 /**
- * _notdigit - check to see if string is only digits
- * @s: string to check
- *
- * Return: 0 if only digits, 1 if non digit chars
+ * _strlen - size of string
+ * @s: string to measure
+ * Return: size of string
  */
-int _notdigit(char *s)
-{
-	for ( ; *s; s++)
-		if (*s < '0' || *s > '9')
-			return (1);
-	return (0);
-}
-/**
- * rev_ - Reverse a string in place
- * @s: string to reverse
- */
-void rev_(char *s)
-{
-	char tmp;
-	int i, j;
-
-	for (i = 0; s[i]; i++)
-		;
-	i--;
-	for (j = 0; j <= i / 2; j++)
-	{
-		tmp = s[j];
-		s[j] = s[i - j];
-		s[i - j] = tmp;
-	}
-}
-/**
- * _addup - add up integer array
- * @arr: array to count
- * @n: number of ints to count
- * @place: which tens place to count
- *
- * Return: result of addition
- */
-int _addup(int *arr, int n, int place)
-{
-	int sum, i;
-
-	for (i = 0, sum = 0; i < n; i++)
-	{
-		sum += arr[n * i + place];
-	}
-	return (sum);
-}
-/**
- * cut_zeros - cut off my zeros
- * @s: string to cut
- *
- * Return: length of s
- */
-int cut_zeros(char *s)
+int _strlen(char *s)
 {
 	int i;
 
 	i = 0;
-	while (*s != '\0')
-	{
-		i++;
-		s++;
-	}
-	i--;
-	s--;
-	while (*s == '0' && i > 0)
-	{
-		*s = '\0';
-		s--;
-		i--;
-	}
+	while (*(s + i) != '\0')
+		++i;
 	return (i);
 }
 
 /**
- * main - multiple two numbers and print the result
- * @argc: Number of arguments
- * @argv: Argument strings
- *
+ * checkarg - checks arguments only composed of digits
+ * @s: string to check
+ * Return: -1 if False, number as string stripped of 0 otherwise;
+ */
+char *checkarg(char *s)
+{
+	int i, count, stop;
+
+	i = 0;
+	stop = 0;
+	count = 0;
+	while (*(s + i) != '\0')
+	{
+		if (*(s + i) < '0' || *(s + i) > '9')
+			return (NULL);
+
+		if (stop == 0 && *(s + i) == '0')
+			++count;
+		if (*(s + i) != '0')
+			stop = 1;
+		i++;
+	}
+	return (s + count);
+}
+
+/**
+ * makesecond - create new string, by multiplying values of src by c
+ * @src: string
+ * @l1: length of src
+ * @c: multiplier
+ * @zero: number of 0 to insert in string at the end
+ * Return: pointer to new string, NULL if fails
+ */
+char *makesecond(char *src, int l1,  char c, int zero)
+{
+	int  j, l, retenue, prod;
+	char *second;
+
+	l = l1 + 2 + zero; /*retenue + \0 + nb zeros*/
+	second = malloc(l * sizeof(char));
+	if (second == NULL)
+		return (NULL);
+	second[l - 1] = '\0';
+	while (zero > 0)
+		second[l - 1 - zero--] = '0';
+	j = l1;
+	retenue = 0;
+	while (j > 0)
+	{
+		prod = (src[j - 1] - '0') * (c - '0') + retenue;
+		second[j] = prod % 10 + '0';
+		retenue = prod / 10;
+		j--;
+	}
+	if (retenue > 0)
+		second[j] = retenue + '0';
+	else
+		second[j] = '0';
+	return (second);
+}
+
+/**
+ * _calloc - allocates memory for an array, initializes values to '0'
+ * @nmemb: number of elements
+ * @size: size of each element
+ * Return: pointer to array if success, or NULL
+ */
+void *_calloc(unsigned int nmemb, unsigned int size)
+{
+	unsigned int i;
+	void *p;
+	char *s;
+
+	if (nmemb == 0 || size == 0)
+		return (NULL);
+
+	p = malloc(size * nmemb);
+	if (p == NULL)
+		return (NULL);
+	s = p;
+	i = 0;
+	while (i < nmemb)
+		*(s + i++) = '0';
+
+	return (p);
+}
+
+
+
+/**
+ * infinite_add - add two numbers given as strings
+ * @num1: this sring is a number
+ * @num2: this string is a number
+ * @r: buffer to put result
+ * @size_r: size of buffer
+ * Return:pointer to buffer with result
+ */
+char *infinite_add(char *num1, char *num2, char *r, int size_r)
+{
+	int l1, l2, retenue, sum;
+
+	l1 = _strlen(num1);
+	l2 = _strlen(num2);
+	*(r + size_r - 1) = '\0';
+	size_r--;
+	if (l1 > size_r || l2 > size_r || size_r == 0)
+		return (0);
+	if (l1 == size_r && l2 == size_r && (*num1 - '0' + *num2 - '0') > 9)
+		return (0);
+
+	retenue = 0;
+	while (size_r > 0 && (l1 > 0 || l2 > 0))
+	{
+		if (l1 <= 0)
+			sum =  *(num2 + l2 - 1) - '0' + retenue;
+		else if (l2 <= 0)
+			sum  = *(num1 + l1 - 1) - '0' + retenue;
+		else
+			sum = *(num1 + l1 - 1) - '0' + *(num2 + l2 - 1) - '0' + retenue;
+		retenue = sum / 10;
+		*(r + size_r - 1) = sum % 10 + '0';
+		l1--;
+		l2--;
+		size_r--;
+	}
+	if (retenue != 0 && size_r > 0)
+	{
+		*(r + size_r - 1) = retenue + '0';
+	}
+	return (r);
+}
+
+
+/**
+ * _mul - multiply 2 strings made of digits
+ * @s1:first string
+ * @s2:second string
+ * Return: product or NULL
+ */
+char *_mul(char *s1, char *s2)
+{
+
+	int l1, l2, i;
+	char *first, *second, *third;
+
+	l1 = _strlen(s1);
+	l2 = _strlen(s2);
+
+/*loop through 2nd string, produce a new line and add the first and new line*/
+	first = makesecond(s1, l1, s2[l2 - 1], 0);
+	if (first == NULL)
+		return (NULL);
+	if (l2 == 1)
+		return (first);
+	i = 1;
+	while (i < l2)
+	{
+/*make second line*/
+		second = makesecond(s1, l1, s2[l2 - i - 1], i);
+		if (second == NULL)
+		{
+			free(first);
+			return (NULL);
+		}
+		third = _calloc((l1 + 2 + i + 1), sizeof(char));
+		if (third == NULL)
+		{
+			free(second);
+			free(first);
+			return (NULL);
+		}
+		third = infinite_add(second, first, third, l1 + 2 + i + 1);
+		free(second);
+		free(first);
+		first = third;
+		++i;
+	}
+	return (third);
+}
+
+
+/**
+ * main - multiply 2 numbers
+ * @argc: number of arguments
+ * @argv: list of arguments
  * Return: 0
  */
 int main(int argc, char *argv[])
 {
-	int *calc;
-	char *final;
-	unsigned int l1, l2, lsum, i, j, ntmp, rolltmp;
+	char *mul, *num1, *num2;
 
 	if (argc != 3)
-		_prt("Error"), exit(98);
-	if (_notdigit(argv[1]) || _notdigit(argv[2]))
-		_prt("Error"), exit(98);
-	for (l1 = 0; argv[1][l1]; l1++)
-		;
-	for (l2 = 0; argv[2][l2]; l2++)
-		;
-	lsum = l1 + l2, final = malloc((lsum + 2) * sizeof(*final));
-	calc = _calloc(lsum * lsum, sizeof(int));
-	if (calc == NULL)
-		_prt("Error"), exit(98);
-	rev_(argv[1]), rev_(argv[2]);
-	for (i = 0; i < l1; i++)
 	{
-		rolltmp = 0, ntmp = 0;
-		for (j = 0; j < l2; j++)
-		{
-			ntmp = (argv[1][i] - '0') * (argv[2][j] - '0') + rolltmp;
-			calc[i * lsum + j + i] = ntmp % 10, rolltmp = ntmp / 10;
-		}
-		for (; j < l2 + i; j++, rolltmp /= 10)
-			calc[i * lsum + j + i] = rolltmp % 10;
-		while (rolltmp)
-			calc[i * lsum + j + i] = rolltmp % 10, rolltmp /= 10, j++;
+		puts("Error");
+		exit(98);
 	}
-	for (i = 0, rolltmp = 0; i < lsum; i++, rolltmp /= 10)
-		rolltmp += _addup(calc, lsum, i), final[i] = rolltmp % 10 + '0';
-	final[i + 1] = '\0', i = cut_zeros(final), rev_(final);
-	final[i + 2] = '\0', _prt(final), free(calc), free(final);
+	num1 = checkarg(argv[1]);
+	num2 = checkarg(argv[2]);
+	if (num1 == NULL || num2 == NULL)
+	{
+		puts("Error");
+		exit(98);
+	}
+
+	if (*num1 == '\0' || *num2 == '\0')
+	{
+		printf("0\n");
+		return (0);
+	}
+	else
+	{
+		mul = _mul(num1, num2);
+		if (mul == NULL)
+		{
+			puts("merde");
+			return (0);
+		}
+	}
+
+	printf("%s\n", checkarg(mul));
+	free(mul);
 	return (0);
 }
