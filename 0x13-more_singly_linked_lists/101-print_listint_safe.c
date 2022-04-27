@@ -1,36 +1,106 @@
 #include "lists.h"
+#include <stdlib.h>
 #include <stdio.h>
 
+
 /**
- * print_listint_safe - Print a `listint_t` linked list including mem addresses
- * @head: head of linked list
- * Description: Go through the list only once.
- * Return: number of nodes in list. If fails, exit with status 98.
+ * is_in - checks if an address is in a linked list of pointers
+ * @add: a linked list of addresses
+ * @p: a pointer
+ * Return: 1 if true, 0 if false
+ */
+int is_in(list_ad *add, void *p)
+{
+	if (add == NULL)
+		return (0);
+	if (p == NULL)
+		return (0);
+
+	while (add != NULL)
+	{
+		if (add->p == p)
+			return (1);
+		add = add->next;
+	}
+	return (0);
+}
+
+/**
+ * add_add - adds an address to a linked list
+ * @head: a pointer to a linked list of addresses
+ * @p: an address
+ * Return: pointer to head of list
+ */
+list_ad *add_add(list_ad **head, void *p)
+{
+	list_ad *new;
+
+	new = malloc(sizeof(list_ad));
+	if (new == NULL)
+		return (NULL);
+	new->p = p;
+	new->next = *head;
+	*head = new;
+	return (*head);
+}
+
+
+/**
+ * free_add - free a linked list of pointers
+ * @head: pointer to list
+ *
+ */
+void free_add(list_ad *head)
+{
+	list_ad *tmp;
+
+	while (head != NULL)
+	{
+		tmp = head;
+		head = head->next;
+		free(tmp);
+	}
+}
+
+
+/**
+ * print_listint_safe - prints a linked list with a loop
+ * @head: pointer to first element
+ * loop only once through list
+ * Return: size of linked list
  */
 size_t print_listint_safe(const listint_t *head)
 {
-	const listint_t *current;
-	size_t count;
-	const listint_t *hold;
+	int keep;
+	size_t l;
+	list_ad *address, *check;
 
-	current = head;
-	if (current == NULL)
-		exit(98);
+	l = 0;
+	if (head == NULL)
+		return (l);
 
-	count = 0;
-	while (current != NULL)
+/*create a linked list holding the address of each node*/
+	address = NULL;
+/*use keep not to recalculate is_in() after loop*/
+	keep = 0;
+	while (head != NULL && !keep)
 	{
-		hold = current;
-		current = current->next;
-		count++;
-		printf("[%p] %d\n", (void *)hold, hold->n);
+		printf("[%p] %d\n", (void *) head, head->n);
 
-		if (hold < current)
+/*use check to catch a NULL return, if the function did not work*/
+		check = add_add(&address, (void *) head);
+		if (check == NULL)
 		{
-			printf("-> [%p] %d\n", (void *)current, current->n);
-			break;
+			free_add(address);
+			exit(98);
 		}
+		head = head->next;
+/*add node address to linked list*/
+		keep = is_in(address, (void *) head);
+		++l;
 	}
-
-	return (count);
+	if (keep)
+		printf("-> [%p] %d\n", (void *) head, head->n);
+	free_add(address);
+	return (l);
 }

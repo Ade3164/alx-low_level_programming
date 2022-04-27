@@ -1,72 +1,41 @@
 #include "lists.h"
 #include <stdlib.h>
-#include <string.h>
 #include <stdio.h>
 
-/**
- * free_listp - frees a linked list
- * @head: head of a list.
- *
- * Return: no return.
- */
-void free_listp(listp_t **head)
-{
-	listp_t *temp;
-	listp_t *curr;
 
-	if (head != NULL)
+/**
+ * free_listint_safe - free linked list of integers, sets first element to NULL
+ * @h: pointer to pointer to first element of list
+ * Return: size of list that was freed
+ */
+size_t free_listint_safe(listint_t **h)
+{
+	size_t l;
+	listint_t *tmp;
+	list_ad *address, *check;
+
+	l = 0;
+	if (*h == NULL)
+		return (l);
+
+	address = NULL;
+	while (*h != NULL && !is_in(address, (void *) *h))
 	{
-		curr = *head;
-		while ((temp = curr) != NULL)
+		check = add_add(&address, (void *) *h);
+/*I cannot free if something goes wrong here, do I care to check */
+		if (check == NULL)
 		{
-			curr = curr->next;
-			free(temp);
-		}
-		*head = NULL;
-	}
-}
-
-/**
- * print_listint_safe - prints a linked list.
- * @head: head of a list.
- *
- * Return: number of nodes in the list.
- */
-size_t print_listint_safe(const listint_t *head)
-{
-	size_t nnodes = 0;
-	listp_t *hptr, *new, *add;
-
-	hptr = NULL;
-	while (head != NULL)
-	{
-		new = malloc(sizeof(listp_t));
-
-		if (new == NULL)
+			free_add(address);
 			exit(98);
-
-		new->p = (void *)head;
-		new->next = hptr;
-		hptr = new;
-
-		add = hptr;
-
-		while (add->next != NULL)
-		{
-			add = add->next;
-			if (head == add->p)
-			{
-				printf("-> [%p] %d\n", (void *)head, head->n);
-				free_listp(&hptr);
-				return (nnodes);
-			}
 		}
-
-		printf("[%p] %d\n", (void *)head, head->n);
-		head = head->next;
-		nnodes++;
+		tmp = *h;
+		*h = (*h)->next;
+		free(tmp);
+		++l;
 	}
-
-	free_listp(&hptr);
-	return (nnodes);
+	*h = NULL;
+	free_add(address);
+	return (l);
 }
+
+/*look at Justin's solution, links a list on the stack, no call to malloc*/
