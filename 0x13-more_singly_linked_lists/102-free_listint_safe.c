@@ -1,41 +1,33 @@
 #include "lists.h"
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 
-
 /**
- * free_listint_safe - free linked list of integers, sets first element to NULL
- * @h: pointer to pointer to first element of list
- * Return: size of list that was freed
+ * free_listint_safe - free a `listint_t` list and set the head to null
+ * @h: double pointer to head of linked list
+ * Description: This function should work for circular lists
+ * Only loop through the list once
+ * Return: size of the list that was free'd
  */
 size_t free_listint_safe(listint_t **h)
 {
-	size_t l;
-	listint_t *tmp;
-	list_ad *address, *check;
+	listint_t *current, *hold;
+	size_t count;
 
-	l = 0;
-	if (*h == NULL)
-		return (l);
-
-	address = NULL;
-	while (*h != NULL && !is_in(address, (void *) *h))
+	count = 0;
+	current = *h;
+	while (current != NULL)
 	{
-		check = add_add(&address, (void *) *h);
-/*I cannot free if something goes wrong here, do I care to check */
-		if (check == NULL)
-		{
-			free_add(address);
-			exit(98);
-		}
-		tmp = *h;
-		*h = (*h)->next;
-		free(tmp);
-		++l;
+		count++;
+		hold = current;
+		current = current->next;
+		free(hold);
+
+		if (hold < current)
+			break;
 	}
 	*h = NULL;
-	free_add(address);
-	return (l);
-}
 
-/*look at Justin's solution, links a list on the stack, no call to malloc*/
+	return (count);
+}
