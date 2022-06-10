@@ -1,45 +1,57 @@
-#include "lists.h"
+/*
+ * File: 103-keygen.c
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 /**
- * insert_dnodeint_at_index - inserts a node at a given index
- * in a doubly linked list
- * @h: double pointer to the list
- * @idx: index of the node to insert
- * @n: data to insert
+ * main - Generates and prints passwords for the crackme5 executable.
+ * @argc: The number of arguments supplied to the program.
+ * @argv: An array of pointers to the arguments.
  *
- * Return: address of the new node, or NULL if it failed
+ * Return: Always 0.
  */
-dlistint_t *insert_dnodeint_at_index(dlistint_t **h, unsigned int idx, int n)
+int main(int __attribute__((__unused__)) argc, char *argv[])
 {
-	unsigned int i;
-	dlistint_t *new;
-	dlistint_t *temp = *h;
+	char password[7], *codex;
+	int len = strlen(argv[1]), i, tmp;
 
-	new = malloc(sizeof(dlistint_t));
-	if (!new || !h)
-		return (NULL);
+	codex = "A-CHRDw87lNS0E9B2TibgpnMVys5XzvtOGJcYLU+4mjW6fxqZeF3Qa1rPhdKIouk";
 
-	new->n = n;
-	new->next = NULL;
+	tmp = (len ^ 59) & 63;
+	password[0] = codex[tmp];
 
-	if (idx == 0)
-		return (add_dnodeint(h, n));
+	tmp = 0;
+	for (i = 0; i < len; i++)
+		tmp += argv[1][i];
+	password[1] = codex[(tmp ^ 79) & 63];
 
-	for (i = 0; temp && i < idx; i++)
+	tmp = 1;
+	for (i = 0; i < len; i++)
+		tmp *= argv[1][i];
+	password[2] = codex[(tmp ^ 85) & 63];
+
+	tmp = 0;
+	for (i = 0; i < len; i++)
 	{
-		if (i == idx - 1)
-		{
-			if (temp->next == NULL)
-				return (add_dnodeint_end(h, n));
-			new->next = temp->next;
-			new->prev = temp;
-			temp->next->prev = new;
-			temp->next = new;
-			return (new);
-		}
-		else
-			temp = temp->next;
+		if (argv[1][i] > tmp)
+			tmp = argv[1][i];
 	}
+	srand(tmp ^ 14);
+	password[3] = codex[rand() & 63];
 
-	return (NULL);
+	tmp = 0;
+	for (i = 0; i < len; i++)
+		tmp += (argv[1][i] * argv[1][i]);
+	password[4] = codex[(tmp ^ 239) & 63];
+
+	for (i = 0; i < argv[1][0]; i++)
+		tmp = rand();
+	password[5] = codex[(tmp ^ 229) & 63];
+
+	password[6] = '\0';
+	printf("%s", password);
+	return (0);
 }
